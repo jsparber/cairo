@@ -8,7 +8,7 @@ use std::path::Path;
 use std::io;
 
 use ffi;
-use ffi::enums::{SurfaceType, SvgVersion};
+use ffi::enums::{SurfaceType, SvgVersion, SvgUnit};
 use surface::{Surface, SurfaceExt};
 use support;
 
@@ -47,6 +47,12 @@ impl File {
         unsafe {
             ffi::cairo_svg_surface_restrict_to_version(self.inner.to_raw_none(), version);
         }
+    }
+
+    pub fn set_document_unit(&mut self, unit : SvgUnit) {
+        unsafe {
+            ffi::cairo_svg_surface_set_document_unit(self.inner.to_raw_none(), unit)
+        };
     }
 }
 
@@ -120,6 +126,12 @@ impl Buffer {
             ffi::cairo_svg_surface_restrict_to_version(self.inner.to_raw_none(), version);
         }
     }
+
+    pub fn set_document_unit(&mut self, unit : SvgUnit) {
+        unsafe {
+            ffi::cairo_svg_surface_set_document_unit(self.inner.to_raw_none(), unit)
+        };
+    }
 }
 
 impl AsRef<[u8]> for Buffer {
@@ -174,6 +186,12 @@ impl<'a> Writer<'a> {
             ffi::cairo_svg_surface_restrict_to_version(self.inner.to_raw_none(), version);
         }
     }
+
+    pub fn set_document_unit(&mut self, unit : SvgUnit) {
+        unsafe {
+            ffi::cairo_svg_surface_set_document_unit(self.inner.to_raw_none(), unit)
+        };
+    }
 }
 
 impl<'a> AsRef<Surface> for Writer<'a> {
@@ -223,6 +241,12 @@ impl<'a> Stream<'a> {
         unsafe {
             ffi::cairo_svg_surface_restrict_to_version(self.inner.to_raw_none(), version);
         }
+    }
+
+    pub fn set_document_unit(&mut self, unit : SvgUnit) {
+        unsafe {
+            ffi::cairo_svg_surface_set_document_unit(self.inner.to_raw_none(), unit)
+        };
     }
 }
 
@@ -300,4 +324,15 @@ mod test {
         draw(&surface);
         surface.finish();
     }
+
+    #[test]
+    fn unit() {
+        let file = ::std::fs::File::create("test_unit.svg").unwrap();
+        let mut surface = Writer::new(100., 100., file);
+
+        surface.set_document_unit(SvgUnit::Px);
+        draw(&surface);
+        surface.finish();
+    }
+
 }
